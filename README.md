@@ -10,10 +10,11 @@ Install the required Termux packages:
 
 ```sh
 pkg update
-pkg install curl proot
+pkg install curl proot gzip
 ```
 
 - `curl` downloads the official Elm release.
+- `gzip` provides gunzip to extract the compressed Elm release.
 - `proot` provides the temporary `/etc` bind mount required by Elm.
 
 ## Setup
