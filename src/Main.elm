@@ -53,6 +53,14 @@ type AccountName
     | AccountB
 
 
+-- TODO: Use Account type for spreadsheets
+type alias Account =
+    { balance: String
+    , debits: List String
+    , credits: List String
+    , accountName: AccountName
+    }
+
 
 init : () -> ( Model, Cmd Msg )
 init flags =
@@ -74,9 +82,8 @@ type Msg
     | Export
     | Import (List (List String))
     | GoToBudget
-    | ChangeDisplay Int
+    | ChangeDisplay String
     | GoToAccount AccountName
-
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -126,12 +133,13 @@ update msg model =
             ({ model | currentPage = AccountsPage accountName }, Cmd.none )
 
 
-        ChangeDisplay newDigit ->
-            ({ model | display = model.display ++ String.fromInt newDigit }, Cmd.none )
+        ChangeDisplay newItem ->
+            ({ model | display = model.display ++ newItem }, Cmd.none )
 
 
         GoToBudget ->
             ({ model | currentPage = BudgetPage }, Cmd.none )
+
 
 indexedEntry : Int -> Entry -> ( Int, Entry )
 indexedEntry index entry =
@@ -186,23 +194,28 @@ view model =
         HomePage ->
             div [class "bg-yellow-500 w-dvw"]
                 [ div [ class "flex flex-col gap-y-5" ]
-                      [ div [ class "flex flex-row gap-x-5 justify-evently" ]
-                        [ button [ class "flex-1", concat 1 ] [ text "1" ]
-                        , button [ class "flex-1", concat 2 ] [ text "2" ]
-                        , button [ class "flex-1", concat 3 ] [text "3"]
+                      [ p [ class "bg-white flex-2" ] [ text model.display ]
+                      , div [ class "flex flex-row gap-x-5 justify-evently" ]
+                        [ button [ class "flex-1", concat "1" ] [ text "1" ]
+                        , button [ class "flex-1", concat "2" ] [ text "2" ]
+                        , button [ class "flex-1", concat "3" ] [text "3"]
                         ]
                       , div [ class "flex flex-row gap-x-5 items-center" ]
-                        [ button [ class "flex-1", concat 4 ] [ text "4" ]
-                        , button [ class "flex-1", concat 5 ] [ text "5" ]
-                        , button [ class "flex-1", concat 6 ] [ text "6" ]
+                        [ button [ class "flex-1", concat "4" ] [ text "4" ]
+                        , button [ class "flex-1", concat "5" ] [ text "5" ]
+                        , button [ class "flex-1", concat "6" ] [ text "6" ]
                         ]
                       , div [ class "flex flex-row gap-x-5" ]
-                        [ button [ class "flex-1", concat 7 ] [ text "7" ]
-                        , button [ class "flex-1", concat 8 ] [ text "8" ]
-                        , button [ class "flex-1", concat 9 ] [ text "9" ]
+                        [ button [ class "flex-1", concat "7" ] [ text "7" ]
+                        , button [ class "flex-1", concat "8" ] [ text "8" ]
+                        , button [ class "flex-1", concat "9" ] [ text "9" ]
                         ]
-                      , p [ class "bg-white w-1/2" ] [ text model.display ]
-                      , div [ class "flex flex-row gap-x-5" ] [ button [ class "flex-1" ] [ text "USD" ], button [ class "flex-1" ] [ text "MXN" ], button [ class "flex-1" ] [ text "Otro" ]]
+                      , div [ class "flex flex-row gap-x-5" ]
+                        [ button [ class "flex-1", concat "0" ] [ text "0" ]
+                        , button [ class "flex-1", concat "." ] [ text "." ]
+                        , button [ class "flex-1"] [ text "-" ]
+                        ]
+                      , div [ class "flex flex-row gap-x-5" ] [ button [ class "flex-1 bg-green-300" ] [ text "USD" ], button [ class "flex-1 text-white" ] [ text "MXN" ], button [ class "flex-1" ] [ text "Otro" ]]
                       , button [ onClick (GoToAccount DefaultAccount) ] [ text "Cuentas" ]
                       ]
                 ]
@@ -252,9 +265,9 @@ accountButtons =
         ]
 
 
-concat : Int -> Html.Attribute Msg
-concat num =
-    onClick (ChangeDisplay num)
+concat : String -> Html.Attribute Msg
+concat symbol =
+    onClick (ChangeDisplay symbol)
 
 
 writeEntry : ( Int, Entry ) -> Html Msg
