@@ -2,7 +2,7 @@ port module Main exposing (..)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, type_, pattern, value, placeholder)
+import Html.Attributes exposing (class, type_, pattern, value, placeholder, disabled, placeholder)
 import Html.Events exposing (onInput, onClick)
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -84,6 +84,8 @@ type Msg
     | GoToBudget
     | ChangeDisplay String
     | GoToAccount AccountName
+    | NegateDisplay
+    | ClearDisplay
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -135,6 +137,18 @@ update msg model =
 
         ChangeDisplay newItem ->
             ({ model | display = model.display ++ newItem }, Cmd.none )
+
+
+        NegateDisplay ->
+            if String.left 1 model.display == "-" then
+                ({ model | display = (String.dropLeft 1 model.display) }, Cmd.none )
+
+            else
+                ({ model | display = ("-" ++ model.display) }, Cmd.none )
+
+
+        ClearDisplay ->
+            ({ model | display = "" }, Cmd.none )
 
 
         GoToBudget ->
@@ -194,7 +208,7 @@ view model =
         HomePage ->
             div [class "bg-yellow-500 w-dvw"]
                 [ div [ class "flex flex-col gap-y-5" ]
-                      [ p [ class "bg-white flex-2" ] [ text model.display ]
+                      [ input [ class "bg-white", value model.display, disabled True, placeholder "0" ] []
                       , div [ class "flex flex-row gap-x-5 justify-evently" ]
                         [ button [ class "flex-1", concat "1" ] [ text "1" ]
                         , button [ class "flex-1", concat "2" ] [ text "2" ]
@@ -211,11 +225,16 @@ view model =
                         , button [ class "flex-1", concat "9" ] [ text "9" ]
                         ]
                       , div [ class "flex flex-row gap-x-5" ]
-                        [ button [ class "flex-1", concat "0" ] [ text "0" ]
-                        , button [ class "flex-1", concat "." ] [ text "." ]
-                        , button [ class "flex-1"] [ text "-" ]
+                        [ button [ class "flex-1", concat "," ] [ text "," ]
+                        , button [ class "flex-1", concat "0" ] [ text "0" ]
+                        , button [ class "flex-1", onClick NegateDisplay ] [ text "-" ]
                         ]
-                      , div [ class "flex flex-row gap-x-5" ] [ button [ class "flex-1 bg-green-300" ] [ text "USD" ], button [ class "flex-1 text-white" ] [ text "MXN" ], button [ class "flex-1" ] [ text "Otro" ]]
+                      , div [ class "flex flex-row gap-x-5" ]
+                            [ button [ class "flex-1 bg-green-300" ] [ text "USD" ]
+                            , button [ class "flex-1 text-white" ] [ text "MXN" ]
+                            , button [ class "flex-1" ] [ text "Otro" ]
+                            , button [ class "flex-1", onClick ClearDisplay ] [ text "clear" ]
+                            ]
                       , button [ onClick (GoToAccount DefaultAccount) ] [ text "Cuentas" ]
                       ]
                 ]
